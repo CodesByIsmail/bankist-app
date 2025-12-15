@@ -85,9 +85,13 @@ const createUsernames = function (accounts) {
 
 createUsernames(accounts);
 
-const calcBalanceDisplay = movements => {
-  labelBalance.textContent = `${movements.reduce((acc, mov) => acc + mov, 0)}€`;
+const calcBalanceDisplay = acc => {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
+  
+  labelBalance.textContent = `${acc.balance}€`
+  
 };
+
 
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
@@ -105,16 +109,29 @@ const displayMovements = function (movements) {
   });
 };
 
-const calcSummaryDispaly = function (movements) {
-  const eurotoUsd = 1.1;
+const calcSummaryDispaly = function (acc) {
+  
 
-  labelSumInterest.textContent = movements
+  const interest = acc.movements
     .filter(mov => mov > 0)
-    .map(mov => mov * eurotoUsd)
+    .map(mov => mov * 1.2 / 100).filter(mov => mov >= 1)
     .reduce((acc, mov) => acc + mov, 0);
+
+  labelSumInterest.textContent=`${interest}€`
 };
 
 let currentAccount;
+const updateUI = function (acc) {
+      //Display movements
+    displayMovements(acc.movements);
+
+    //Display Balance
+    calcBalanceDisplay(acc);
+
+    //Display summary
+    calcSummaryDispaly(acc);
+}
+
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
@@ -133,13 +150,36 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
 
-    //Display movements
-    displayMovements(currentAccount.movements);
 
-    //Display Balance
-    calcBalanceDisplay(currentAccount.movements);
-
-    //Display summary
-    calcSummaryDispaly(currentAccount.movements);
+// update ui
+updateUI(currentAccount);
   }
 });
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault()
+  
+  const amount = inputTransferAmount.value
+  const receiverAcc = accounts.find(acc => acc.username === inputTransferTo.value)
+  
+  if(amount > 0 && receiverAcc && receiverAcc.username !== currentAccount.username && amount <= currentAccount.balance){
+    receiverAcc.movements.push(amount);
+    currentAccount.movements.push(-amount)
+    
+// update ui
+updateUI(currentAccount);
+  }
+  
+  console.log(amount, receiverAcc)
+})
+
+
+console.log(movements)
+
+
+// includes test for equality 
+console.log(movements.includes(-130))
+
+// some test for condition
+const anyDeposits = movements.some(mov => mov > 1500)
+console.log(anyDeposits)
