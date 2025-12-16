@@ -93,10 +93,14 @@ const calcBalanceDisplay = acc => {
 };
 
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
+  
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  
+  
   containerMovements.innerHTML = '';
 
-  movements.forEach((mov, i) => {
+  movs.forEach((mov, i) => {
     const type = mov < 0 ? 'withdrawal' : 'deposit';
     const html = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
@@ -219,6 +223,20 @@ btnClose.addEventListener('click', function (e) {
 
 })
 
+
+let sorted = true
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault()
+  
+  displayMovements(currentAccount.movements, sorted);
+  
+  sorted = !sorted
+  
+  
+})
+
+
+
 console.log(movements)
 
 
@@ -263,3 +281,70 @@ const overallBalance2 = accounts.flatMap(
 
 console.log(overallBalance2)
 
+const arr2 = ['Jonas', 'Tola', 'Ade']
+
+
+console.log(arr2.sort()) //sort method mutates the original array and this sort alphabetically, ao using it kn number will mot sort numerically, instead it sort alphabetically from 1,2 to 3 and go on
+
+console.log(arr2)
+
+
+// To sort Numerically: it receives two parameters e.g (a, b) where a and b are two consecutive numbers in the array. 
+// Now the sort takes a callback function which has to return a condition: 
+// if you return < 0 (i.e negative), the a comes before b
+// if you return > 0 (i.e positive), b comes before a
+const sortedMovement = movements.sort((a,b)=> {
+  if(a > b) return 1
+  if (a < b) return -1
+})
+
+// 400, -450
+
+console.log(sortedMovement)
+
+const newOwner =[700, 800,-600,3000,-900]
+
+// const sortedOwner = newOwner.sort((a,b)=> {
+//   if (a > b) return 1
+//   if (a < b) return -1
+// })
+
+const sortedOwner = newOwner.slice().sort((a,b)=> a - b) // Ascending Order
+
+const sortedOwner2 = newOwner.slice().sort((a,b)=> b - a) // Descending Order
+
+
+console.log(sortedOwner,sortedOwner2)
+
+// In sorting: negative to retain, positive to flip
+
+
+
+///Format of Creating Array
+
+const x = new Array(7);
+
+x.fill('hello', 2, 6) // first parameter is the element to be filled in, second os the starting position, third is the finishing point 
+console.log(x)
+
+const y = Array.from({length: 7}, () => 1)
+console.log(y)
+const z = Array.from({length: 7}, (_, i) => i + 1)
+console.log(z)
+
+// const diceRoll = Array.from({length: 100}, (cur, i) => {
+//   return i + 1
+// })
+
+// console.log(diceRoll)
+
+// Array.from() can be used to turn iterables like string, Map ans Set to array
+// Also, we can use it to turn NodeList from .queryselectorAll to array and by that we can use map and other method on it method
+
+
+
+labelBalance.addEventListener('click', function () {
+  const movementsUI = Array.from(document.querySelectorAll('.movements__value', el => Number(el.textContent.replace('€', ''))))
+
+console.log(movementsUI)
+})
