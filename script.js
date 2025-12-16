@@ -111,6 +111,12 @@ const displayMovements = function (movements) {
 
 const calcSummaryDispaly = function (acc) {
   
+  const incomes = acc.movements.filter(mov => mov > 0).reduce((acc,mov)=> acc + mov, 0)
+  
+  labelSumIn.textContent=`${incomes}€`
+
+const outcomes = acc.movements.filter(mov => mov < 0).reduce((acc,mov)=> acc + mov, 0)
+labelSumOut.textContent=`${Math.abs(outcomes)}€`;
 
   const interest = acc.movements
     .filter(mov => mov > 0)
@@ -153,6 +159,8 @@ btnLogin.addEventListener('click', function (e) {
 
 // update ui
 updateUI(currentAccount);
+
+inputLoginUsername.value = inputLoginPin.value = '';
   }
 });
 
@@ -168,11 +176,48 @@ btnTransfer.addEventListener('click', function (e) {
     
 // update ui
 updateUI(currentAccount);
+
+inputTransferTo.value = inputTransferAmount.value =''
   }
   
   console.log(amount, receiverAcc)
 })
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault()
+  
+  const amount = Number(inputLoanAmount.value);
+  
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount* 0.1)) {
+    //Update Movements 
+    currentAccount.movements.push(amount)
+    // Update UI
+    updateUI(currentAccount);
+    inputLoanAmount.value = ''
+  }
+  
+  
+})
+
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault()
+  
+  
+  if (inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin) {
+    
+    
+    const index = accounts.findIndex(acc => acc.username === currentAccount.username);
+    
+   console.log(index) 
+   accounts.splice(index, 1)
+  containerApp.style.opacity = 0;
+  
+  }
+  
+  inputClosePin.value = inputCloseUsername.value =''
+
+})
 
 console.log(movements)
 
@@ -181,5 +226,40 @@ console.log(movements)
 console.log(movements.includes(-130))
 
 // some test for condition
-const anyDeposits = movements.some(mov => mov > 1500)
+const anyDeposits = movements.some(mov => mov > 0)
 console.log(anyDeposits)
+
+// every returns true only if all the element meet the condition 
+console.log(movements.every(mov => mov > 0))
+console.log(account4.movements.every(mov => mov > 0))
+
+
+//Seperate Callback function for methods
+
+const deposit = mov => mov > 0
+
+console.log(movements.some(deposit))
+console.log(movements.every(deposit))
+console.log(movements.filter(deposit))
+console.log(movements.find(deposit))
+
+
+const arr = [[1,2,3],4,5,[6,7,8]]
+console.log(arr.flat())
+const arrDeep = [[1,[2,3]],4,5,[6,[7,8]]]
+console.log(arrDeep.flat(2)) // flat goes deeper by 2 eince the nested array also goes deeper 
+
+
+
+const overallBalance = accounts.map(
+  acc => acc.movements
+).flat().reduce((acc, mov) => acc + mov, 0)
+
+console.log(overallBalance)
+
+const overallBalance2 = accounts.flatMap(
+  acc => acc.movements
+).reduce((acc, mov) => acc + mov, 0)
+
+console.log(overallBalance2)
+
