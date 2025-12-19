@@ -145,12 +145,17 @@ const displayMovements = function (acc, sort = false) {
    const date = new Date(acc.movementsDates[i])
 const displayDate = formatMovementDate(date, acc.locale)
   
+    const formattedMov = new Intl.NumberFormat(acc.locale, {
+      style: 'currency',
+      currency: acc.currency,
+     }).format(mov)
+    
     const html = `<div class="movements__row">
           <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
               <div class="movements__date">${displayDate}</div>
-          <div class="movements__value">${mov.toFixed(2)}€</div>
+          <div class="movements__value">${formattedMov}</div>
         </div>`;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -582,3 +587,15 @@ const calcDatePassed = (date1, date2) => Math.abs(date2 - date1) / (1000 * 60 * 
 const day1 = calcDatePassed(new Date(2026, 1, 14), new Date(2025, 11, 18))
 
 // console.log(day1);
+
+const num = 3884764.23;
+
+const options = {
+  style: 'currency',
+  unit: 'celsius',
+  currency: 'NGN',
+  // useGrouping: false
+};
+
+console.log('US:    ', new Intl.NumberFormat('en-NG', options).format(num));
+console.log(navigator.language, new Intl.NumberFormat(navigator.language, options).format(num))
