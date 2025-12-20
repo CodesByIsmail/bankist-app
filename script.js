@@ -112,7 +112,6 @@ const formatMovementDate = function (date, locale) {
     Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
 
   const dayPassed = calcDatePassed(new Date(), date);
-  console.log(dayPassed);
 
   if (dayPassed === 0) return 'Today';
   if (dayPassed === 1) return 'yesterday';
@@ -181,7 +180,33 @@ const calcSummaryDispaly = function (acc) {
   labelSumInterest.textContent = formatCur(interest, acc.locale, acc.currency);
 };
 
-let currentAccount;
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    // In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}: ${sec}`;
+
+    // when 0 seconds, stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer)
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Login to get started';
+    }
+
+    // Decrease 1 second
+    time--;
+  };
+  // Set Timer to 5 minutes
+  let time = 120;
+  // Call the timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer
+};
+
+let currentAccount, timer;
 
 const updateUI = function (acc) {
   //Display movements
@@ -196,9 +221,9 @@ const updateUI = function (acc) {
 
 ///FAKE LOGIN
 
-currentAccount = account1;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+// currentAccount = account1;
+// updateUI(currentAccount);
+// containerApp.style.opacity = 100;
 
 ///Intertionalizing
 
@@ -248,10 +273,15 @@ btnLogin.addEventListener('click', function (e) {
       options
     ).format(now);
 
+    //Clear input fields
+    inputLoginPin.blur();
+    inputLoginUsername.value = inputLoginPin.value = '';
+
+    if(timer) clearInterval(timer)
+    timer = startLogOutTimer();
+
     // update ui
     updateUI(currentAccount);
-
-    inputLoginUsername.value = inputLoginPin.value = '';
   }
 });
 
@@ -285,6 +315,10 @@ btnTransfer.addEventListener('click', function (e) {
   }
 
   console.log(amount, receiverAcc);
+
+  //Reset timer
+  clearInterval(timer)
+  timer = startLogOutTimer()      
 });
 
 btnLoan.addEventListener('click', function (e) {
@@ -293,16 +327,23 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    //Update Movements
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      //Update Movements
+      currentAccount.movements.push(amount);
 
-    // Loan Transfer
-    currentAccount.movementsDates.push(new Date().toISOString());
+      // Loan Transfer
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update UI
-    updateUI(currentAccount);
+      // Update UI
+      updateUI(currentAccount);
+    }, 2500);
+
     inputLoanAmount.value = '';
   }
+
+  //Reset timer
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
 btnClose.addEventListener('click', function (e) {
@@ -567,19 +608,42 @@ const day1 = calcDatePassed(new Date(2026, 1, 14), new Date(2025, 11, 18));
 
 // console.log(day1);
 
-const num = 3884764.23;
+// const num = 3884764.23;
 
-const options = {
-  style: 'currency',
-  unit: 'celsius',
-  currency: 'NGN',
-  // useGrouping: false
-};
+// const options = {
+//   style: 'currency',
+//   unit: 'celsius',
+//   currency: 'NGN',
+//   // useGrouping: false
+// };
 
-console.log('US:    ', new Intl.NumberFormat('en-NG', options).format(num));
-console.log(
-  navigator.language,
-  new Intl.NumberFormat(navigator.language, options).format(num)
+// console.log('US:    ', new Intl.NumberFormat('en-NG', options).format(num));
+// console.log(
+//   navigator.language,
+//   new Intl.NumberFormat(navigator.language, options).format(num)
+// );
+// console.log('ar-SY: ', new Intl.NumberFormat('ar-SY', options).format(num));
+// console.log('de-DE: ', new Intl.NumberFormat('de-DE', options).format(num));
+
+const ingredients = ['olives', 'spinach'];
+
+const pizzaTimer = setTimeout(
+  (ing1, ing2) => {
+    console.log(`Here is your pizza made with ${ing1} and ${ing2}`);
+  },
+  3000,
+  ...ingredients
 );
-console.log('ar-SY: ', new Intl.NumberFormat('ar-SY', options).format(num));
-console.log('de-DE: ', new Intl.NumberFormat('de-DE', options).format(num));
+
+if (ingredients.includes('spinach')) clearTimeout(pizzaTimer);
+
+//SetInterval
+
+setInterval(() => {
+  const nowHours = new Date().getHours();
+
+  const nowMinutes = new Date().getMinutes();
+
+  const nowSeconds = `${new Date().getSeconds()}`.padStart(2, 0);
+  console.log(`${nowHours}:${nowMinutes}:${nowSeconds}`);
+}, 1000);
